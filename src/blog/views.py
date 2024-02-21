@@ -1,17 +1,25 @@
 from django.shortcuts import render, get_object_or_404
 from .models import Post
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from django.views.generic import ListView
+
+
+class PostListView( ListView ):
+    queryset = Post.published.all()
+    context_object_name = 'posts'
+    paginate_by = 3
+    template_name = 'blog/post/list.html'
 
 def post_list( request ):
     object_list = Post.published.all()
-    panigator = Paginator( object_list, 3 )
+    paginator = Paginator( object_list, 3 )
     page = request.GET.get('page')
     try:
-        posts = panigator.page(page)
+        posts =  paginator.page(page)
     except PageNotAnInteger:
-        posts = panigator.page(1)
+        posts =  paginator.page(1)
     except EmptyPage:
-        posts = panigator.page(panigator.num_pages)
+        posts =  paginator.page( paginator.num_pages) 
 
     return render( request, 'blog/post/list.html', {'page': page, 'posts': posts } )
 
